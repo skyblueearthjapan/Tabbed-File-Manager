@@ -208,12 +208,11 @@ function setupColorReference_(ss) {
 
   sheet.getRange(2, 1, colors.length, 2).setValues(colors);
 
-  // C列にプレビュー色を設定（背景色で表現）
+  // C列にプレビュー色を設定（セル背景色で直感的に表現）
   for (let i = 0; i < colors.length; i++) {
     const cell = sheet.getRange(i + 2, 3);
-    cell.setValue('████████');
-    cell.setFontColor(colors[i][1]);
-    cell.setBackground('#FFFFFF');
+    cell.setValue('');
+    cell.setBackground(colors[i][1]);
   }
 
   sheet.setColumnWidth(1, 140);
@@ -232,9 +231,9 @@ function setupIconReference_(ss) {
     sheet.clear();
   }
 
-  const headers = ['アイコン名', 'Material Iconコード', 'カテゴリ'];
-  sheet.getRange(1, 1, 1, 3).setValues([headers]);
-  sheet.getRange(1, 1, 1, 3)
+  const headers = ['アイコン名', 'Material Iconコード', 'カテゴリ', 'プレビュー'];
+  sheet.getRange(1, 1, 1, 4).setValues([headers]);
+  sheet.getRange(1, 1, 1, 4)
     .setFontWeight('bold')
     .setBackground('#37474F')
     .setFontColor('#FFFFFF');
@@ -327,9 +326,24 @@ function setupIconReference_(ss) {
 
   sheet.getRange(2, 1, icons.length, 3).setValues(icons);
 
+  // D列にIMAGE関数でアイコンプレビューを表示
+  for (let i = 0; i < icons.length; i++) {
+    const iconCode = icons[i][1];
+    const row = i + 2;
+    sheet.getRange(row, 4).setFormula(
+      '=IMAGE("https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/' + iconCode + '/default/24px.svg")'
+    );
+  }
+
+  // 行の高さを調整してアイコンが見やすいように
+  for (let i = 2; i <= icons.length + 1; i++) {
+    sheet.setRowHeight(i, 30);
+  }
+
   sheet.setColumnWidth(1, 140);
   sheet.setColumnWidth(2, 200);
   sheet.setColumnWidth(3, 140);
+  sheet.setColumnWidth(4, 80);
 }
 
 /**

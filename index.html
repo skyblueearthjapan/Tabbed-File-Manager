@@ -139,12 +139,16 @@
     function init() {
       // 全タブとiframeを生成
       tabs.forEach((tab, idx) => {
+        const color = tab.colorCode || '#607D8B';
+
         // タブ要素
         const tabEl = document.createElement('div');
         tabEl.className = 'tab';
         tabEl.dataset.index = idx;
+        // 全タブに常時カラーボーダーを表示
+        tabEl.style.borderTopColor = color;
         tabEl.innerHTML =
-          '<span class="material-icons" style="color:' + escapeHtml(tab.colorCode) + '">' +
+          '<span class="material-icons" style="color:' + escapeHtml(color) + '">' +
             escapeHtml(tab.iconCode) +
           '</span>' +
           '<span class="tab-label">' + escapeHtml(tab.label) + '</span>';
@@ -167,15 +171,13 @@
     }
 
     function switchTab(idx) {
-      // タブのアクティブ切り替え
+      // タブのアクティブ切り替え（色は常時表示のまま）
       document.querySelectorAll('.tab').forEach(el => {
         el.classList.remove('active');
-        el.style.borderTopColor = 'transparent';
       });
       const activeTab = document.querySelector('.tab[data-index="' + idx + '"]');
       if (activeTab) {
         activeTab.classList.add('active');
-        activeTab.style.borderTopColor = tabs[idx].colorCode || '#607D8B';
       }
 
       // iframeの表示切り替え
