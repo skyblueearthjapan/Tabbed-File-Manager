@@ -7,7 +7,7 @@
 // スプレッドシートIDをスクリプトプロパティから取得、または直接指定
 function getSpreadsheetId_() {
   const props = PropertiesService.getScriptProperties();
-  return props.getProperty('SPREADSHEET_ID') || '';
+  return props.getProperty('SPREADSHEET_ID') || '1Rz_LpVMogNFXZpbOrj3Uv1EPByrBRehNrgDnoR9EjEo';
 }
 
 /**
@@ -63,8 +63,8 @@ function getTabsData_() {
  * メニューまたは手動で1回だけ実行
  */
 function setupSpreadsheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.create('Tabbed File Manager Config');
-  const ssId = ss.getId();
+  const ssId = '1Rz_LpVMogNFXZpbOrj3Uv1EPByrBRehNrgDnoR9EjEo';
+  const ss = SpreadsheetApp.openById(ssId);
 
   // スクリプトプロパティに保存
   PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', ssId);
