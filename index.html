@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* ========== リセット ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', 'Yu Gothic UI', sans-serif; }
+
+    /* ========== タブバー ========== */
+    .tab-bar {
+      display: flex;
+      align-items: flex-end;
+      height: 34px;
+      background: #ECEFF1;
+      padding: 0 4px;
+      border-bottom: 1px solid #CFD8DC;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+    }
+    .tab-bar::-webkit-scrollbar {
+      height: 3px;
+    }
+    .tab-bar::-webkit-scrollbar-thumb {
+      background: #B0BEC5;
+      border-radius: 2px;
+    }
+
+    /* ========== 個別タブ（物理ファイルタブ風） ========== */
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 14px;
+      margin: 0 1px;
+      border-radius: 6px 6px 0 0;
+      border: 1px solid #CFD8DC;
+      border-bottom: none;
+      background: #E0E0E0;
+      color: #616161;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      position: relative;
+      top: 1px;
+      user-select: none;
+      border-top: 3px solid transparent;
+    }
+    .tab:hover {
+      background: #EEEEEE;
+      color: #212121;
+    }
+    .tab.active {
+      background: #FFFFFF;
+      color: #212121;
+      height: 32px;
+      font-weight: 600;
+      z-index: 1;
+      /* border-topの色はJSで動的にセット */
+    }
+    .tab .material-icons {
+      font-size: 15px;
+      line-height: 1;
+    }
+    .tab-label {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ========== iframeコンテナ ========== */
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 34px);
+      background: #FAFAFA;
+    }
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .iframe-container iframe.hidden {
+      visibility: hidden;
+      pointer-events: none;
+      position: absolute;
+    }
+
+    /* ========== 空状態 ========== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 34px);
+      color: #9E9E9E;
+      font-size: 16px;
+    }
+    .empty-state .material-icons {
+      font-size: 64px;
+      margin-bottom: 16px;
+      color: #BDBDBD;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tab-bar" id="tabBar"></div>
+  <div class="iframe-container" id="iframeContainer"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <span class="material-icons">folder_open</span>
+    <p>タブが設定されていません</p>
+    <p style="font-size:12px; margin-top:8px; color:#BDBDBD;">スプレッドシートのtabsシートにタブ情報を追加してください</p>
+  </div>
+
+  <script>
+    // サーバーからタブデータを受け取る
+    const tabs = JSON.parse(<?!= JSON.stringify(tabsData) ?>);
+
+    const tabBar = document.getElementById('tabBar');
+    const iframeContainer = document.getElementById('iframeContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    if (!tabs || tabs.length === 0) {
+      iframeContainer.style.display = 'none';
+      emptyState.style.display = 'flex';
+    } else {
+      init();
+    }
+
+    function init() {
+      // 全タブとiframeを生成
+      tabs.forEach((tab, idx) => {
+        // タブ要素
+        const tabEl = document.createElement('div');
+        tabEl.className = 'tab';
+        tabEl.dataset.index = idx;
+        tabEl.innerHTML =
+          '<span class="material-icons" style="color:' + escapeHtml(tab.colorCode) + '">' +
+            escapeHtml(tab.iconCode) +
+          '</span>' +
+          '<span class="tab-label">' + escapeHtml(tab.label) + '</span>';
+
+        tabEl.addEventListener('click', () => switchTab(idx));
+        tabBar.appendChild(tabEl);
+
+        // iframe要素（全て事前生成）
+        const iframe = document.createElement('iframe');
+        iframe.src = tab.url;
+        iframe.className = 'hidden';
+        iframe.dataset.index = idx;
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox');
+        iframeContainer.appendChild(iframe);
+      });
+
+      // 初期アクティブタブ
+      const activeIdx = tabs.findIndex(t => t.active);
+      switchTab(activeIdx >= 0 ? activeIdx : 0);
+    }
+
+    function switchTab(idx) {
+      // タブのアクティブ切り替え
+      document.querySelectorAll('.tab').forEach(el => {
+        el.classList.remove('active');
+        el.style.borderTopColor = 'transparent';
+      });
+      const activeTab = document.querySelector('.tab[data-index="' + idx + '"]');
+      if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.style.borderTopColor = tabs[idx].colorCode || '#607D8B';
+      }
+
+      // iframeの表示切り替え
+      document.querySelectorAll('.iframe-container iframe').forEach(el => {
+        el.classList.add('hidden');
+      });
+      const activeIframe = document.querySelector('iframe[data-index="' + idx + '"]');
+      if (activeIframe) {
+        activeIframe.classList.remove('hidden');
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+
+</body>
+</html>
