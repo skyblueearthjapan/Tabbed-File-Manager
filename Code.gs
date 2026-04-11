@@ -14,12 +14,33 @@ function getSpreadsheetId_() {
  * Webアプリのエントリーポイント
  */
 function doGet() {
+  const title = getDashboardTitle_();
   const template = HtmlService.createTemplateFromFile('index');
   template.tabsData = JSON.stringify(getTabsData_());
   return template.evaluate()
-    .setTitle('Dashboard')
+    .setTitle(title)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * 設定シートからダッシュボードタイトルを取得
+ */
+function getDashboardTitle_() {
+  const ssId = getSpreadsheetId_();
+  if (!ssId) return 'Dashboard';
+
+  try {
+    const ss = SpreadsheetApp.openById(ssId);
+    const sheet = ss.getSheetByName('設定');
+    if (!sheet) return 'Dashboard';
+
+    // B1セルにタイトルを格納（A1はラベル「タイトル」）
+    const value = sheet.getRange('B1').getValue();
+    return value ? String(value) : 'Dashboard';
+  } catch (e) {
+    return 'Dashboard';
+  }
 }
 
 /**
@@ -69,6 +90,7 @@ function setupSpreadsheet() {
   // スクリプトプロパティに保存
   PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', ssId);
 
+  setupSettingsSheet_(ss);
   setupTabsSheet_(ss);
   setupColorReference_(ss);
   setupIconReference_(ss);
@@ -77,6 +99,26 @@ function setupSpreadsheet() {
     'セットアップ完了\n\nスプレッドシートID: ' + ssId +
     '\n\ntabsシートにタブ情報を入力してください。'
   );
+}
+
+/**
+ * 設定シートを作成（タイトルなど）
+ */
+function setupSettingsSheet_(ss) {
+  let sheet = ss.getSheetByName('設定');
+  if (!sheet) {
+    sheet = ss.insertSheet('設定');
+    sheet.getRange('A1').setValue('タイトル')
+      .setFontWeight('bold')
+      .setBackground('#37474F')
+      .setFontColor('#FFFFFF');
+    sheet.getRange('B1').setValue('Dashboard');
+    sheet.getRange('C1').setValue('← B1セルを編集するとダッシュボードのタイトルが変わります')
+      .setFontColor('#888888');
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 240);
+    sheet.setColumnWidth(3, 400);
+  }
 }
 
 /**
