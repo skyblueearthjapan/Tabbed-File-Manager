@@ -12,16 +12,16 @@
     .tab-bar {
       display: flex;
       align-items: flex-end;
-      height: 34px;
+      height: 68px;
       background: #ECEFF1;
-      padding: 0 4px;
+      padding: 0 6px;
       border-bottom: 1px solid #CFD8DC;
       overflow-x: auto;
       overflow-y: hidden;
       scrollbar-width: thin;
     }
     .tab-bar::-webkit-scrollbar {
-      height: 3px;
+      height: 4px;
     }
     .tab-bar::-webkit-scrollbar-thumb {
       background: #B0BEC5;
@@ -32,16 +32,16 @@
     .tab {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      height: 28px;
-      padding: 0 14px;
-      margin: 0 1px;
-      border-radius: 6px 6px 0 0;
+      gap: 8px;
+      height: 56px;
+      padding: 0 22px;
+      margin: 0 2px;
+      border-radius: 8px 8px 0 0;
       border: 1px solid #CFD8DC;
       border-bottom: none;
       background: #E0E0E0;
       color: #616161;
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 500;
       cursor: pointer;
       white-space: nowrap;
@@ -49,7 +49,7 @@
       position: relative;
       top: 1px;
       user-select: none;
-      border-top: 3px solid transparent;
+      border-top: 5px solid transparent;
     }
     .tab:hover {
       background: #EEEEEE;
@@ -58,17 +58,17 @@
     .tab.active {
       background: #FFFFFF;
       color: #212121;
-      height: 32px;
+      height: 64px;
       font-weight: 600;
       z-index: 1;
       /* border-topの色はJSで動的にセット */
     }
     .tab .material-icons {
-      font-size: 15px;
+      font-size: 22px;
       line-height: 1;
     }
     .tab-label {
-      max-width: 120px;
+      max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -77,7 +77,7 @@
     .iframe-container {
       position: relative;
       width: 100%;
-      height: calc(100vh - 34px);
+      height: calc(100vh - 68px);
       background: #FAFAFA;
     }
     .iframe-container iframe {
@@ -100,7 +100,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: calc(100vh - 34px);
+      height: calc(100vh - 68px);
       color: #9E9E9E;
       font-size: 16px;
     }
